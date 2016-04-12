@@ -1,0 +1,381 @@
+
+
+
+canvas {
+    border: solid 2px black;
+}
+#myCanvas {
+    background: black;
+    position: absolute;
+}
+#spectre{
+	background: black;
+}
+.sample {
+    border: solid white 1px;
+    background: black;
+}
+.rfilter::-moz-range-track {
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+.rcompressor::-moz-range-track {
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+
+.rfilter::-moz-range-thumb, .rcompressor::-moz-range-thumb {
+    border: none;
+    height: 13px;
+    border-radius: 50%;
+    background: #00558b;
+}
+.rfilter:-moz-focusring, .rcompressor:-moz-focusring{
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+.rfilter:focus::-moz-range-track, .rcompressor:focus::-moz-range-track {
+    background-color: #fff;
+}
+
+
+#masterVolume {
+    cursor:pointer;
+}
+#masterVolume::-moz-range-track {
+    border-radius: 8px;
+    height: 7px;
+    border: 1px solid #bdc3c7;
+    background-color: #fff;
+}
+
+#masterVolume::-moz-range-thumb {
+    background: #00558b;
+    border: 1px solid #bdc3c7;
+    height: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.classMuteTxt{
+    font-size: 120%;
+    font-weight: bold;
+}
+#canvasFront{
+    cursor:pointer;
+	position: relative;
+
+}
+#filterTest{
+    cursor:pointer;
+}
+#txtfilter{
+    font-weight: bold;
+}
+#frequencyRangeTest{
+    cursor:pointer;
+}
+#qualityRangeTest{
+    cursor:pointer;
+}
+#gainRangeTest{
+    cursor:pointer;
+}
+#labelCompressor{
+    font-weight: bold;
+}
+.rcompressor{
+    cursor: pointer;
+}
+#imgDistortion{
+    cursor:pointer;
+}
+div.round{
+	position:absolute;
+	cursor:pointer;
+}
+div.round input{
+	position: absolute;
+	top: 25px;
+	left: 0px;
+	font-size: 25px;
+	text-align: center;
+	width: 80px;
+	border: medium none;
+	background: transparent none repeat scroll 0% 0%;
+	outline: medium none;
+	cursor: pointer;
+	color: #FFF;
+	z-index: 2;
+}
+.ui-slider{
+    cursor: pointer;
+}
+div.round canvas{
+    position: absolute;
+	top:0; left:0; right:0; bottom:0;
+	height: 80px;
+	width: 80px;
+	background-color: black;
+}
+.bMonoStereo{
+    cursor:pointer;
+}
+.bDistortion{
+	position:absolute;
+	cursor:pointer;
+}
+.imgVolumeClass{
+    width: 90px;
+    height: 35px;
+}
+.rangeVolumeClass{
+    width: 90px;
+    height: 35px;
+    cursor:pointer;
+}
+.rangeVolumeClass::-moz-range-thumb {
+    background: #00558b none repeat scroll 0% 0%;
+    border: 1px solid #BDC3C7;
+    height: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#selectReverb{
+    cursor:pointer;
+}
+#buttonReverb{
+    width:135px;
+    cursor: pointer;
+}
+#frequencyRangeTest, #qualityRangeTest, #gainRangeTest{
+    width: 33.33%;
+}
+
+#playerFrame{
+}
+
+#masterVolume{
+    width: auto;
+}
+
+
+
+
+
+
+
+
+
+#txtFrequency{
+	position:absolute;
+	top: 50px;
+	left:0px;
+}
+
+#frequencyRangeTest{
+	position: absolute;
+	top: 26px;
+	left: 75px;
+}
+
+#valFrequency{
+	position: absolute;
+	top: 26px;
+	left: 200px;
+}
+
+#txtGain{
+	position:absolute;
+	top: 100px;
+	left:0px;
+}
+
+#gainRangeTest{
+	position: absolute;
+	top: 76px;
+	left: 75px;
+}
+
+#valGain{
+	position: absolute;
+	top: 76px;
+	left: 200px;
+}
+
+#txtQuality{
+
+	position:absolute;
+	top: 150px;
+	left:0px;
+
+}
+
+#qualityRangeTest{
+	position: absolute;
+	top: 126px;
+	left: 75px;
+}
+
+#valQuality{
+	position: absolute;
+	top: 126px;
+	left: 200px;
+}
+
+
+
+#divReverb{
+	background-color: silver;
+	top: 40px;
+	left: 50px;
+}
+
+#divFilter{
+	left: 50px;
+	background-color: silver;
+	height: 200px;
+}
+
+
+
+#divEgaliseur{
+
+	position:relative;
+	top: 0px;
+	left: 0px;
+
+}
+
+.divLGain{
+	position: absolute;
+	left: 0px;
+}
+
+.divMGain{
+	position: absolute;
+	left: 10px;
+}
+
+.divHGain{
+	position: absolute;
+	left: 20px;
+}
+
+
+
+#divCompressor{
+	top: 80px;
+	left: 50px;
+
+	background-color: silver;
+}
+
+
+#kneeRangeTest{
+	position:absolute;
+	width:150px;
+	left: 85px;
+}
+
+#thresholdRangeTest{
+	position:absolute;
+	width:150px;
+	left: 85px;
+}
+
+#attackRangeTest{
+	position:absolute;
+	width:150px;
+	left: 85px;
+}
+
+#releaseRangeTest{
+	position:absolute;
+	width:150px;
+	left: 85px;
+}
+
+#reductionRangeTest{
+	position:absolute;
+	width:150px;
+	left: 85px;
+}
+
+#ratioRangeTest{
+	position:absolute;
+	width:150px;
+	left: 85px;
+}
+
+#txtKnee{
+	position:absolute;
+	left: 15px;
+}
+
+#txtThreshold{
+	position:absolute;
+	left: 15px;
+}
+
+#txtAttack{
+	position:absolute;
+	left: 15px;
+}
+
+#txtRelease{
+	position:absolute;
+	left: 15px;
+}
+
+#txtReduction{
+	position:absolute;
+	left: 15px;
+}
+
+#txtRatio{
+	position:absolute;
+	left: 15px;
+}
+
+#valKnee{
+	position:absolute;
+	left: 250px;
+	width:150px;
+}
+
+#valThreshold{
+	position:absolute;
+	left: 250px;
+	width:150px;
+}
+
+#valAttack{
+	position:absolute;
+	left: 250px;
+	width:150px;
+}
+
+#valRelease{
+	position:absolute;
+	left: 250px;
+	width:150px;
+}
+
+#valReduction{
+	position:absolute;
+	left: 250px;
+	width:150px;
+}
+
+#valRatio{
+	position:absolute;
+	left: 250px;
+	width:150px;
+}
