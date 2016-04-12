@@ -1,0 +1,41 @@
+<div class="col-md-10 col-md-offset-1">
+      <div class="form-group">
+        <label for="commentArea">Comment</label>
+        <textarea class="form-control" id="commentArea" placeholder="Enter your comment..."></textarea>
+      </div>
+  <button type="submit" class="btn btn-default" onclick="saveComment()">Post Comment!</button>
+</div>
+<div class="row">
+    <div id="commentsList" class="col-md-10 col-md-offset-1">
+    </div>
+</div>
+
+<script>
+function loadComments(){
+    $.get("/play/<%= songname %>/comments", function(data){
+        $("#commentsList").empty();
+        for(var i = 0; i < data.length; i++){
+            var comment = data[i];
+            $("#commentsList").append(
+                "<blockquote><p>"
+                + comment['body']
+                + "</p><footer>"
+                + comment['username']
+                + " <strong>at</strong> <cite title=\"source title\">"
+                + comment['createdAt']
+                + "</cite></footer></blockquote>"
+            );
+        }
+    })
+}
+
+function saveComment(){
+    $.post("/play/<%= songname %>/comments",{
+        songname: "<%= songname %>",
+        comment: $("#commentArea").val()
+    }).done(function(data){
+        loadComments();
+        $("#commentArea").val("");
+    })
+}
+</script>

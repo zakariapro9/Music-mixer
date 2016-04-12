@@ -1,0 +1,816 @@
+<%- include header %>
+
+<div class="row">
+	<div class="col-md-4">
+		<h2><%= songname %></h2>
+	</div>
+	<div id="divSave" class="col-md-4">
+		<button id="buttonSave" class="btn btn-default" onclick="saveStatique();" disabled>Sauvegarder</button>
+	</div>
+</div>
+
+<div id="playerFrame" class="container-fluid">
+	<link rel="stylesheet" href="/js/libs/jquery-1.9.0/jqueryUI.css">
+    <script src="/js/libs/jquery-1.9.0/jquery.min.js"></script>
+	<script src="/js/libs/jquery-1.9.0/jqueryUI.js"></script>
+	<script src="/js/libs/chroma.js"></script>
+
+    <script type="application/javascript">
+        var str ="<%=stracks%>";
+        console.log("Imp Str: " + str);
+        str = str.replace(new RegExp("&quot;", 'g'),'"');
+        console.log("Imp Str2: " + str);
+        var songtracks = JSON.parse(str);
+		console.log("Parsed: " + songtracks);
+
+		var owner = <%= isOwner %>;
+
+		var songNom = songtracks.id;
+
+		var test = <%= songname %>;
+
+		stringJSON = "";
+
+    </script>
+
+    <script src="/js/buffer-loader.js"></script>
+    <script src="/js/sound.js"></script>
+	<script src="/js/soundEffects.js"></script>
+    <script src="/js/waveformDrawer.js"></script>
+
+	<script src="/js/design/designGauche.js"></script>
+
+	<script src="/js/save/save.js"></script>
+
+	<script src="/js/design/slider.js"></script>
+
+    <script>
+        nbInstrumentsMusique = 0;
+    </script>
+
+    <div onload="init();">
+
+	<div class="row" id="topPlayer" style="min-height: 15vh;">
+		<div class="col-md-3" style="min-height: inherit;">
+			<div class="row">
+				<button id="bplay" class="col-md-4" onclick="playAllTracks(0);changePlayImg();" style="border: 0; background: transparent;cursor:pointer;">
+					<img id="imgPlay" class="col-md-12" src="/img/play.png" alt="play" />
+				</button>
+				<button id="bpause" class="col-md-4" onclick="pauseAllTracks();changePauseImg();" style="border: 0; background: transparent;cursor:pointer;">
+					<img id="imgPause" class="col-md-12" src="/img/pause.png" alt="pause" />
+				</button>
+				<button id="bstop" class="col-md-4" onclick="stopAllTracks();changeStopImg();" style="border: 0; background: transparent;cursor:pointer;">
+					<img id="imgStop" class="col-md-12" src="/img/stop.png" alt="stop" />
+				</button>
+			</div>
+			<div class="row">
+				<img id="imageVolume" class="col-md-6" src="/img/volume/volume10.png" alt="volume" /><br/>
+				<input type="range" id="masterVolume" min="0" max="120" value="50" oninput="changeMasterVolume(this);changeVolumeImg();">
+			</div>
+		</div>
+
+		<div class="col-md-9" style="min-height: inherit;">
+			<canvas id="spectre" width="350" height="100" style="position: absolute; top: 0px; left: 0px;  border: solid 2px;" ></canvas>
+			<canvas id="visualizer" width="350" height="100" style="position: absolute; top: 0px; left: 350px;  border: solid 2px; background-color: black;"></canvas>
+			<canvas id="oscilloscope" width="350" height="100" style="position: absolute;top: 0px; left: 700px;  border: solid 2px; background-color: black;"></canvas>
+		</div>
+	</div>
+	<div class="row" style="min-height: 75vh;">
+		<div class="col-md-2" style="min-height: inherit;">
+			<div id="tracks">
+				<% for(var i=0; i<ttracks.instruments.length; i++) {%>
+					<div class="classMuteTxt col-md-12">
+						<%=ttracks.instruments[i].name%>
+					</div>
+					<div class="volumeTracks col-md-6 testNiqueBootstrap">
+						<!-- On affiche les images -->
+						<img src="/img/volume2/pistSong1.png" class="imgVolumeClass" alt="img volume2" id="imageVolume2<%=i%>"/>
+						<input type="range" class="rangeVolumeClass" id="volume2RangeTest<%=i%>" width="80px" min="0" max="120" value="120" oninput="changeVolume2(document.getElementById('volume2RangeTest<%=i%>').value,<%=i%>);" >
+
+					</div>
+					<div class="classMute col-md-6 testNiqueBootstrap2">
+						<button id="mute<%=i%>" onclick="muteUnmuteImg(<%=i%>);muteUnmuteTrack(<%=i%>);" style="border: 0; background: transparent;cursor:pointer;">
+							<img src="/img/unmute.png" class="imgMuteClass" width="80px" height="80px" alt="mute" id="imgMute<%=i%>"/>
+						</button>
+					</div>
+				<%}%>
+			</div>
+		</div>
+		<div class="col-md-4" style="min-height: inherit;">
+			<canvas id="myCanvas" width="450" height="200" ></canvas>
+		</div>
+		<!-- ON LANCE LE SETUP DU SPECTROGRAM APRES QUE LE CANVAS SOIT CREER REELEMENT -->
+		<script>setSpectrogram();</script>
+		<div class="col-md-6" style="min-height: inherit;">
+
+			<!--
+			<div id="divMonoStereo" class="col-md-1">
+				<% for(var i=0; i<ttracks.instruments.length; i++) {%>
+					<button class="bMonoStereo" id="buttonMonoStereo<%=i%>" onclick="changeMonoStereo(<%=i%>);" > S
+					</button>
+				<%}%>
+			</div>
+			-->
+
+
+			<div id="divDistortion" class="col-md-2">
+				<% for(var i=0; i<ttracks.instruments.length; i++) {%>
+					<button class="bDistortion" id="buttonDistortion<%=i%>" disabled>
+					</button>
+					<img src="/img/off.png" class="imgDistortion" width="20px" height="20px" alt="disto" id="imgDistortion<%=i%>" style="position:absolute;top:<%=i*100 +40%>px;" onclick="makeDistortion(document.getElementById('roundDist<%=i%>').value,<%=i%>);changeImgDisto('imgDistortion<%=i%>',<%=i%>);"/>
+					<div style="position: relative;top: 10px;">
+						<input type="text" id="roundDist<%=i%>" name="round" class="round" data-min="0" data-max="2000" value="0" />
+					</div>
+				<%}%>
+			</div>
+
+			<div id="divEgaliseur" class="col-md-3">
+				<% for(var i=0; i<ttracks.instruments.length; i++) {%>
+				<div width="100%">
+					<div class="divLGain col-md-4">
+						<input type="text" class="inputEgal" id="lGain<%=i%>" readonly style="border:0; color:#00558b; font-weight:bold;height:30px;">
+						<div id="slider-verticalA<%=i%>" class="lGain" style="height:65px;"></div>
+					</div>
+
+					<div class="divMGain col-md-4">
+						<input type="text" class="inputEgal" id="mGain<%=i%>" readonly style="border:0; color:#00558b; font-weight:bold;height:30px;">
+						<div id="slider-verticalB<%=i%>" class="mGain" style="height:65px;"></div>
+					</div>
+
+					<div class="divHGain col-md-4">
+						<input type="text" class="inputEgal" id="hGain<%=i%>" readonly style="border:0; color:#00558b; font-weight:bold;height:30px;">
+						<div id="slider-verticalC<%=i%>" class="hGain" style="height:65px;"></div>
+					</div>
+
+					<script>
+						createSlider("slider-verticalA<%=i%>","lGain<%=i%>",<%=i%>);
+						createSlider("slider-verticalB<%=i%>","mGain<%=i%>",<%=i%>);
+						createSlider("slider-verticalC<%=i%>","hGain<%=i%>",<%=i%>);
+					</script>
+
+				</div>
+				<%}%>
+			</div>
+
+			<div id="divFilter" class="col-md-6">
+				<div class="col-md-12">
+					<span id="txtfilter">Filter :</span>
+					<select id='filterTest' onchange="changeEffect(document.getElementById('filterTest').value);">
+						<option value="lowpass" selected="selected">Low Pass</option>
+						<option value="highpass">High Pass</option>
+						<option value="bandpass">Band Pass</option>
+						<option value="lowshelf">Low Shelf</option>
+						<option value="highshelf">High Shelf</option>
+						<option value="peaking">Peaking</option>
+						<option value="notch">Notch</option>
+						<option value="allpass">All Pass</option>
+					</select>
+
+					<span id="txtFrequency">Frequency :</span>
+					<span id="txtQuality">Quality :</span>
+					<span id="txtGain">Gain :</span>
+				</div>
+
+				<div class="col-md-12">
+					<div class="col-md-12">
+						<input class = "rfilter col-md-4" type="range" id="frequencyRangeTest" min="0" max="3000" value="1000"
+							   oninput="changeFrequency(document.getElementById('frequencyRangeTest').value);">
+
+						<input  class = "rfilter col-md-4" type="range" id="qualityRangeTest" min="0" max="100" value="0"
+								oninput="changeQuality(document.getElementById('qualityRangeTest').value);">
+
+						<input  class = "rfilter col-md-4" type="range" id="gainRangeTest" min="0" max="100" value="4"
+								oninput="changeGain1(document.getElementById('gainRangeTest').value);">
+					</div>
+					<div class="col-md-12">
+						<span class="col-md-4" id="valFrequency">1000/3000</span>
+						<span class="col-md-4" id="valQuality" >0/100</span>
+						<span class="col-md-4" id="valGain" >4/100</span>
+					</div>
+				</div>
+			</div>
+
+			<div id="divReverb" class="col-md-6">
+				<button id="buttonReverb"
+						onclick="addReverb(0,document.getElementById('selectReverb').value);">
+						Faire une Reverb
+				</button>
+				<select id="selectReverb">
+					<option value="1" selected>Block Inside</option>
+					<option value="2">Bottle Hall</option>
+					<option value="3">Cement Blocks 1</option>
+					<option value="4">Cement Blocks 2</option>
+					<option value="5">Chateau de Logne, Outside</option>
+					<option value="6">Conic Long Echo Hall</option>
+					<option value="7">Deep Space</option>
+					<option value="8">Derlon Sanctuary</option>
+					<option value="9">Direct Cabinet N1</option>
+					<option value="10">Direct Cabinet N2</option>
+					<option value="11">Direct Cabinet N3</option>
+					<option value="12">Direct Cabinet N4</option>
+					<option value="13">Five Columns Long</option>
+					<option value="14">Five Columns</option>
+					<option value="15">French 18th Century Salon</option>
+					<option value="16">Going Home</option>
+					<option value="17">Greek 7 Echo Hall</option>
+					<option value="18">Highly Damped Large Room</option>
+					<option value="19">In The Silo Revised</option>
+					<option value="20">In The Silo</option>
+					<option value="21">Large Bottle Hall</option>
+					<option value="22">Large Long Echo Hall</option>
+					<option value="23">Large Wide Echo Hall</option>
+					<option value="24">Masonic Lodge</option>
+					<option value="25">Musikvereinsaal</option>
+					<option value="26">Narrow Bumpy Space</option>
+					<option value="27">Nice Drum Room</option>
+					<option value="28">On a Star</option>
+					<option value="29">Parking Garage</option>
+					<option value="30">Rays</option>
+					<option value="31">Right Glass Triangle</option>
+					<option value="32">Ruby Room</option>
+					<option value="33">Scala Milan Opera Hall</option>
+					<option value="34">Small Drum Room</option>
+					<option value="35">Small Prehistoric Cave</option>
+					<option value="36">St Nicolaes Church</option>
+					<option value="37">Trig Room</option>
+					<option value="38">Vocal Duo</option>
+				</select>
+			</div>
+
+			<div id="divCompressor" class="col-md-6">
+
+				<span id="labelCompressor">Compression :</span>
+
+				<br/>
+
+				<span id="txtThreshold">Threshold :</span>
+				<input class = "rcompressor" type="range" id="thresholdRangeTest" min="0" max="100" value="24"
+							oninput="changeCompressorThreshold(document.getElementById('thresholdRangeTest').value);">
+				<span id="valThreshold"> 	&nbsp;&nbsp;&nbsp; -24/-100</span>
+
+				<br/>
+
+				<span id="txtKnee">Knee :</span>
+				<input class = "rcompressor" type="range" id="kneeRangeTest" min="0" max="40" value="30"
+							oninput="changeCompressorKnee(document.getElementById('kneeRangeTest').value);">
+				<span id="valKnee"> 	&nbsp;&nbsp;&nbsp; 30/40</span>
+
+				<br/>
+
+				<span id="txtRatio">Ratio :</span>
+				<input class = "rcompressor" type="range" id="ratioRangeTest" min="1" max="20" value="12"
+							oninput="changeCompressorRatio(document.getElementById('ratioRangeTest').value);">
+				<span id="valRatio"> 	&nbsp;&nbsp;&nbsp; 12/20</span>
+
+				<br/>
+
+				<span id="txtReduction">Reduction :</span>
+				<input class = "rcompressor" type="range" id="reductionRangeTest" min="0" max="20" value="20"
+							oninput="changeCompressorReduction(document.getElementById('reductionRangeTest').value);">
+				<span id="valReduction"> 	&nbsp;&nbsp;&nbsp; -20/-20</span>
+
+				<br/>
+
+				<span id="txtAttack">Attack :</span>
+				<input class = "rcompressor" type="range" id="attackRangeTest" min="0" max="1000" value="3"
+							oninput="changeCompressorAttack(document.getElementById('attackRangeTest').value);">
+				<span id="valAttack"> 	&nbsp;&nbsp;&nbsp; 0.003/1.000</span>
+
+				<br/>
+
+				<span id="txtRelease">Release :</span>
+				<input class = "rcompressor" type="range" id="releaseRangeTest" min="0" max="100" value="25"
+							oninput="changeCompressorRelease(document.getElementById('releaseRangeTest').value);">
+				<span id="valRelease"> 	&nbsp;&nbsp;&nbsp; 0.25/1.00</span>
+
+				<br/>
+
+			</div>
+		</div>
+	</div>
+
+	<script src="/js/design/designDroite.js"></script>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 page-header">
+      <h3>
+          Discuss the song
+     </h3>
+    </div>
+    <%- include ratingsSection %>
+    <%- include commentsSection %>
+</div>
+
+
+<script>
+    $(document).ready(function(){
+        init();
+        loadComments();
+        loadRatings();
+    })
+
+
+	if(owner){
+
+	}else{
+		//PAS DE BOUTON SAVE SI PAS OWNER
+		document.getElementById("divSave").style.display = "none";
+	}
+
+function saveStatique(){
+
+	stringJSON = "{ ";
+
+	//en aattendant
+	var valNonImplemented = 0
+
+	//STEP 1 On recupere toutes les valeurs
+
+		//PARTIE PISTE PAR PISTE
+
+		//On recupere les mute
+		stringJSON = stringJSON + "\"mute\": [ ";
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if( nbInstr != (nbInstrumentsMusique - 1)){
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + mute[nbInstr] + " },";
+			}else{
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + mute[nbInstr] + " }";
+			}
+		}
+		stringJSON = stringJSON + " ], ";
+
+		//On recupere les volumes
+		stringJSON = stringJSON + "\"volume\": [ ";
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if( nbInstr != (nbInstrumentsMusique - 1)){
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + document.getElementById("volume2RangeTest"+nbInstr).value + " },";
+			}else{
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + document.getElementById("volume2RangeTest"+nbInstr).value + " }";
+			}
+		}
+		stringJSON = stringJSON + " ], ";
+
+		//On recupere les delay
+		stringJSON = stringJSON + "\"delay\": [ ";
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if( nbInstr != (nbInstrumentsMusique - 1)){
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + valNonImplemented + " },";
+			}else{
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + valNonImplemented + " }";
+			}
+		}
+		stringJSON = stringJSON + " ], ";
+
+		//On recupere les egaliseur
+
+		stringJSON = stringJSON + "\"egaliseur\": [ ";
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if( nbInstr != (nbInstrumentsMusique - 1)){
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeurL\": " + lGainSave[nbInstr] + ", \"valeurM\": " + mGainSave[nbInstr] + ", \"valeurH\": " + hGainSave[nbInstr] + " },";
+			}else{
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeurL\": " + lGainSave[nbInstr] + ", \"valeurM\": " + mGainSave[nbInstr] + ", \"valeurH\": " + hGainSave[nbInstr] + " } ";
+			}
+		}
+		stringJSON = stringJSON + " ], ";
+
+		//On recupere les stereo
+		stringJSON = stringJSON + "\"stereo\": [ ";
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if( nbInstr != (nbInstrumentsMusique - 1)){
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + valNonImplemented + " },";
+			}else{
+				stringJSON = stringJSON + "{ \"numInstrument\": " + nbInstr + ", \"valeur\": " + valNonImplemented + " }";
+			}
+		}
+		stringJSON = stringJSON + " ], ";
+
+
+		//PARTIE CONTEXT DESTINATION
+
+		//On recup�re le volume
+		stringJSON = stringJSON + "\"volumeD\": [ ";
+		stringJSON = stringJSON + "{ \"valeur\": " + document.getElementById("masterVolume").value + " }";
+		stringJSON = stringJSON + " ], ";
+
+		//On recup�re la reverb
+		stringJSON = stringJSON + "\"reverbD\": [ ";
+		stringJSON = stringJSON + "{ \"valeur\": " + document.getElementById("selectReverb").value + " }";
+		stringJSON = stringJSON + " ], ";
+
+		//On recupere la compression
+		stringJSON = stringJSON + "\"compressionD\": [ ";
+		stringJSON = stringJSON + "{ \"valeurThreshold\": " + document.getElementById("thresholdRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurKnee\": " + document.getElementById("kneeRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurRatio\": " + document.getElementById("ratioRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurReduction\": " + document.getElementById("reductionRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurAttack\": " + document.getElementById("attackRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurRelease\": " + document.getElementById("releaseRangeTest").value + " }";
+		stringJSON = stringJSON + " ], ";
+
+		//On recupere la compression
+		stringJSON = stringJSON + "\"filterD\": [ ";
+		stringJSON = stringJSON + "{ \"valeurFilter\": \"" + document.getElementById('filterTest').value + "\" },";
+		stringJSON = stringJSON + "{ \"valeurFrequency\": " + document.getElementById("frequencyRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurQuality\": " + document.getElementById("qualityRangeTest").value + " },";
+		stringJSON = stringJSON + "{ \"valeurGain\": " + document.getElementById("gainRangeTest").value + " }";
+		stringJSON = stringJSON + " ] ";
+
+
+		//On ferme le json
+		stringJSON = stringJSON + " } ";
+
+		$.post("/play/<%= songname %>/saveSettings",{
+			settings: stringJSON
+		}).done(function(data){
+			alert('Song has been succesfully saved');
+		});
+
+}
+
+var startSongParameters = 0;
+
+function loadParameters(){
+
+	//si c'est le proprietaire de la chanson
+	if(owner || startSongParameters != 0){
+
+		//On precharge tous les parametres
+
+		//1) le volume general
+		setMasterVolume();
+
+		//2) les mute de chaques pistes
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if(mute[nbInstr] == 0){
+				trackVolumeNodes[nbInstr].gain.value = mute[nbInstr];
+			}
+		}
+
+		//3) les volumes de chaques pistes
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if(trackVolumeNodes[nbInstr].gain.value != 0){
+				var volumeP = parseFloat(document.getElementById('volume2RangeTest'+nbInstr).value);
+				trackVolumeNodes[nbInstr].gain.value = volumeP/120;
+			}
+		}
+
+		//4) les egaliseurq de chaques pistes
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			lGain[nbInstr].gain.value = parseFloat(document.getElementById('lGain'+nbInstr).value/100);
+			mGain[nbInstr].gain.value = parseFloat(document.getElementById('mGain'+nbInstr).value/100);
+			hGain[nbInstr].gain.value = parseFloat(document.getElementById('hGain'+nbInstr).value/100);
+		}
+
+		//5) la compression
+		compressor.threshold.value = document.getElementById('thresholdRangeTest').value;
+		compressor.knee.value = document.getElementById('kneeRangeTest').value;
+		compressor.ratio.value = document.getElementById('ratioRangeTest').value;
+		compressor.reduction.value = document.getElementById('reductionRangeTest').value;
+		compressor.attack.value = document.getElementById('attackRangeTest').value;
+		compressor.release.value = document.getElementById('releaseRangeTest').value;
+
+		//6) le filtre
+		filter.type = document.getElementById('filterTest').value;
+		filter.frequency.value = document.getElementById('frequencyRangeTest').value;
+		filter.Q.value = document.getElementById('qualityRangeTest').value;
+		filter.gain.value = document.getElementById('gainRangeTest').value;
+
+		//ON REFRESH LES DISTORSIONS (desactivation si active)
+		for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+			if(distortionNodesB[nbInstr] == true){
+				distortionNodes[nbInstr].curve = makeDistortionCurve(0);
+				distortionNodes[nbInstr].oversample = 'none';
+				distortionNodesB[nbInstr] = false;
+			}
+		}
+
+		//ON REFRESH LA REVERBERATION (desactivation si active)
+		if(reverbe == 1){
+				filter.disconnect(0);
+				convolver.disconnect(0);
+
+				filter.connect(context.destination);
+				filter.connect(analyser);
+
+				reverbe = 0;
+
+				document.getElementById('buttonReverb').innerHTML = "Faire une Reverb";
+		}
+	}else{
+
+
+		//on precharge les parametres
+
+			$.get("/play/<%= songname %>/loadSettings", function(data){
+				stringJSON = data;
+
+				var dataJSON = JSON.parse(stringJSON);
+
+
+				//alert("val="+dataJSON.compressionD[0]);
+
+
+				//1) le volume general
+				masterVolumeNode.gain.value = parseInt(dataJSON.volumeD[0].valeur)/120;
+				document.getElementById("masterVolume").value = parseInt(dataJSON.volumeD[0].valeur);
+				var volume = parseInt(document.getElementById('masterVolume').value)/10;
+				var src = listeImageVolume[parseInt(volume)];
+				document.getElementById('imageVolume').src = src;
+
+
+				//2) les mute de chaques pistes
+				for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+
+					trackVolumeNodes[nbInstr].gain.value = dataJSON.mute[nbInstr].valeur;
+					mute[nbInstr] = dataJSON.mute[nbInstr].valeur;
+
+					var id = "imgMute"+nbInstr;
+					if (mute[nbInstr] == 1) {
+						document.getElementById(id).src = imageUnmute.src;
+					} else {
+						document.getElementById(id).src = imageMute.src;
+					}
+
+				}
+
+
+				//3) les volumes de chaques pistes
+				for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+					if(trackVolumeNodes[nbInstr].gain.value != 0){
+						trackVolumeNodes[nbInstr].gain.value = dataJSON.volume[nbInstr].valeur/120;
+					}
+					document.getElementById('volume2RangeTest'+nbInstr).value = dataJSON.volume[nbInstr].valeur;
+					var volume = parseInt(document.getElementById('volume2RangeTest'+nbInstr).value)/11;
+					var src = listeImageVolume2[parseInt(volume)];
+					document.getElementById('imageVolume2'+nbInstr).src = src;
+
+				}
+
+				//4) les egaliseurq de chaques pistes
+				for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+					lGain[nbInstr].gain.value = parseFloat(dataJSON.egaliseur[nbInstr].valeurL/100);
+					mGain[nbInstr].gain.value = parseFloat(dataJSON.egaliseur[nbInstr].valeurM/100);
+					hGain[nbInstr].gain.value = parseFloat(dataJSON.egaliseur[nbInstr].valeurH/100);
+					document.getElementById('lGain'+nbInstr).value = dataJSON.egaliseur[nbInstr].valeurL;
+					document.getElementById('mGain'+nbInstr).value = dataJSON.egaliseur[nbInstr].valeurM;
+					document.getElementById('hGain'+nbInstr).value = dataJSON.egaliseur[nbInstr].valeurH;
+
+					$( "#slider-verticalA"+nbInstr ).val( dataJSON.egaliseur[nbInstr].valeurL );
+					$( "#slider-verticalB"+nbInstr ).val( dataJSON.egaliseur[nbInstr].valeurM );
+					$( "#slider-verticalC"+nbInstr ).val( dataJSON.egaliseur[nbInstr].valeurH );
+
+					document.getElementById("slider-verticalC"+nbInstr).children[0].style = "height:"+dataJSON.egaliseur[nbInstr].valeurH+"%; background: #CCC;";
+					document.getElementById("slider-verticalC"+nbInstr).children[1].style = "bottom:"+dataJSON.egaliseur[nbInstr].valeurH+"%;";
+
+					document.getElementById("slider-verticalB"+nbInstr).children[0].style = "height:"+dataJSON.egaliseur[nbInstr].valeurM+"%; background: #CCC;";
+					document.getElementById("slider-verticalB"+nbInstr).children[1].style = "bottom:"+dataJSON.egaliseur[nbInstr].valeurM+"%;";
+
+					document.getElementById("slider-verticalA"+nbInstr).children[0].style = "height:"+dataJSON.egaliseur[nbInstr].valeurL+"%; background: #CCC;";
+					document.getElementById("slider-verticalA"+nbInstr).children[1].style = "bottom:"+dataJSON.egaliseur[nbInstr].valeurL+"%;";
+				}
+
+
+
+				//5) la compression
+				changeCompressorThreshold(dataJSON.compressionD[0].valeurThreshold);
+				changeCompressorKnee(dataJSON.compressionD[1].valeurKnee);
+				changeCompressorRatio(dataJSON.compressionD[2].valeurRatio);
+				changeCompressorReduction(dataJSON.compressionD[3].valeurReduction);
+				changeCompressorAttack(dataJSON.compressionD[4].valeurAttack);
+				changeCompressorRelease(dataJSON.compressionD[5].valeurRelease);
+
+				document.getElementById('thresholdRangeTest').value = dataJSON.compressionD[0].valeurThreshold;
+				document.getElementById('kneeRangeTest').value = dataJSON.compressionD[1].valeurKnee;
+				document.getElementById('ratioRangeTest').value = dataJSON.compressionD[2].valeurRatio;
+				document.getElementById('reductionRangeTest').value = dataJSON.compressionD[3].valeurReduction;
+				document.getElementById('attackRangeTest').value = dataJSON.compressionD[4].valeurAttack;
+				document.getElementById('releaseRangeTest').value = dataJSON.compressionD[5].valeurRelease;
+
+
+
+
+				//6) le filtre
+				filter.type = dataJSON.filterD[0].valeurFilter;
+				filter.frequency.value = dataJSON.filterD[1].valeurFrequency;
+				filter.Q.value = dataJSON.filterD[2].valeurQuality;
+				filter.gain.value = dataJSON.filterD[3].valeurGain;
+
+				document.getElementById('filterTest').value = dataJSON.filterD[0].valeurFilter;
+				document.getElementById('frequencyRangeTest').value = dataJSON.filterD[1].valeurFrequency;
+				document.getElementById('qualityRangeTest').value = dataJSON.filterD[2].valeurQuality;
+				document.getElementById('gainRangeTest').value = dataJSON.filterD[3].valeurGain;
+
+				//ON REFRESH LES DISTORSIONS (desactivation si active)
+				for(var nbInstr = 0; nbInstr < nbInstrumentsMusique; nbInstr++){
+					if(distortionNodesB[nbInstr] == true){
+						distortionNodes[nbInstr].curve = makeDistortionCurve(0);
+						distortionNodes[nbInstr].oversample = 'none';
+						distortionNodesB[nbInstr] = false;
+					}
+				}
+
+				//ON REFRESH LA REVERBERATION (desactivation si active)
+				if(reverbe == 1){
+						filter.disconnect(0);
+						convolver.disconnect(0);
+
+						filter.connect(context.destination);
+						filter.connect(analyser);
+
+						reverbe = 0;
+
+						document.getElementById('buttonReverb').innerHTML = "Faire une Reverb";
+				}
+
+			});
+
+
+			//on ne precharge qu'au premier tour ou après une pause
+			startSongParameters = startSongParameters + 1;
+
+	}
+}
+
+
+
+//FIX BUG IMAGE VOLUME AU DEMARAGE
+var volumeTmp = parseInt(document.getElementById('masterVolume').value)/10;
+var srcTmp = listeImageVolume[parseInt(volumeTmp)];
+document.getElementById('imageVolume').src = srcTmp;
+
+</script>
+
+<style>
+
+
+	/** debug css chrome **/
+	input[type=range]{
+		-webkit-appearance: none;
+	}
+
+	.rfilter::-webkit-slider-runnable-track {
+		width: 100px;
+		height: 5px;
+		background: #ddd;
+		border: none;
+		border-radius: 3px;
+	}
+	.rcompressor::-webkit-slider-runnable-track {
+		height: 5px;
+		width: 5px;
+		background: #ddd;
+		border: none;
+		border-radius: 3px;
+	}
+	.rfilter::-webkit-slider-thumb, .rcompressor::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		border: none;
+		height: 13px;
+		width: 13px;
+		border-radius: 50%;
+		background: #00558b;
+
+		position:relative;
+		top: -5px;
+	}
+	.rfilter:focus::-webkit-slider-runnable-track, .rcompressor:focus::-webkit-slider-runnable-track {
+		background: #ccc;
+	}
+	#masterVolume::-webkit-slider-runnable-track{
+		border-radius: 8px;
+		height: 7px;
+		width: 7px;
+		border: 1px solid #bdc3c7;
+		background-color: #fff;
+	}
+	#masterVolume::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background: #00558b;
+		border: 1px solid #bdc3c7;
+		height: 20px;
+		width: 20px;
+		border-radius: 10px;
+		cursor: pointer;
+
+		position:relative;
+		top: -5px;
+	}
+	.rangeVolumeClass::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background: #00558b;
+		border: 1px solid #bdc3c7;
+		height: 20px;
+		width: 20px;
+		border-radius: 10px;
+		cursor: pointer;
+
+		position:relative;
+		top: -5px;
+	}
+	.rangeVolumeClass::-webkit-slider-runnable-track {
+		border-radius: 8px;
+		height: 7px;
+		width: 7px;
+		border: 1px solid #bdc3c7;
+		background-color: #fff;
+	}
+
+	#divDistortion {
+		background-color: silver;
+		height: <%=ttracks.instruments.length*100 + 2%>px;
+	}
+
+	#divEgaliseur{
+		background-color: silver;
+		height: <%=ttracks.instruments.length*100 + 2%>px;
+	}
+
+	#tracks{
+		background-color: silver;
+		height: <%=ttracks.instruments.length*100 + 2%>px;
+	}
+
+	.rangeVolumeClass{
+		width:80px;
+	}
+
+	.imgMuteClass{
+		position:relative;
+		top:-10px;
+	}
+
+
+	.bDistortion{
+		display:none;
+	}
+
+	.imgDistortion{
+		cursor:pointer;
+		z-index= 2;
+		left: 0px;
+	}
+
+	#topPlayer{
+		background-color: silver;
+	}
+
+	#playerFrame{
+		background-color: silver;
+	}
+
+	.inputEgal{
+		background-color: silver;
+		width:30px;
+	}
+
+	.rangeVolumeClass{
+
+		background-color: silver;
+	}
+
+	.rfilter{
+		background-color: silver;
+	}
+
+	#divFilter{
+		border: 1px solid black;
+		padding: 10px;
+	}
+
+	#divReverb{
+		border: 1px solid black;
+		padding: 10px;
+	}
+
+	#divCompressor{
+		border: 1px solid black;
+		padding: 10px;
+	}
+
+	#divEgaliseur{
+		border: 1px solid black;
+		padding: 10px;
+		padding-right:30px;
+		padding-bottom: 30px;
+	}
+
+	#divDistortion{
+		border-bottom: 1px solid black;
+		border-top: 1px solid black;
+		border-left: 1px solid black;
+		padding-left:20px;
+		padding-bottom:10px;
+	}
+
+	#buttonSave {
+		position: relative;
+		top: 20px;
+	}
+
+
+</style>
+
+<%- include footer  %>

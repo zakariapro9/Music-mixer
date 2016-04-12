@@ -1,0 +1,46 @@
+<div class="col-md-10 col-md-offset-1">
+    Average rating: <div id="avgRating"></div>
+    Your rating: <div id="userRating"></div>
+    <div class="radio">
+      <label>
+        <input type="radio" name="ratingRadio" value="1">
+            1
+      </label>
+      <label>
+        <input type="radio" name="ratingRadio" value="2">
+            2
+      </label>
+      <label>
+        <input type="radio" name="ratingRadio" value="3">
+            3
+      </label>
+      <label>
+        <input type="radio" name="ratingRadio" value="4">
+            4
+      </label>
+      <label>
+        <input type="radio" name="ratingRadio" value="5">
+            5
+      </label>
+    </div>
+    <button type="submit" class="btn btn-default" onclick="saveRating()">Save Rating</button>
+</div>
+
+<script>
+function loadRatings(){
+    $("input:radio[name='ratingRadio']:checked").attr('checked', false);
+    $.get("/play/<%= songname %>/ratings", function(data){
+        $("#avgRating").text(JSON.parse(data[1]));
+        $("#userRating").text(JSON.parse(data[0]));
+    })
+}
+
+function saveRating(){
+    $.post("/play/<%= songname %>/rating", {
+        songname: "<%= songname %>",
+        rating: $("input:radio[name='ratingRadio']:checked").val()
+    }).done(function(data){
+        loadRatings();
+    });
+}
+</script>

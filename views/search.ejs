@@ -1,0 +1,45 @@
+<%- include header %>
+<div class="container">
+    <h1>Search results for: <%= query %></h1>
+    <table id="mytable" class="table table-bordred table-striped center-block" style="width:50%">
+        <thead>
+            <th>Users</th>
+        </thead>
+        <% if(foundUsers.length !== 0) { %>
+            <tbody>
+                <% for(var i=0; i<foundUsers.length; i++){ %>
+                <tr>
+                    <td><a href="profile/<%= foundUsers[i].local.username %>"><%= foundUsers[i].local.username %></a></td>
+                </tr>
+                <% } %>
+            </tbody>
+        <% } %>
+        <% if(foundUsers.length === 0) { %>
+            No users were found with this name.
+        <% } %>
+    </table>
+    <table id="mytable" class="table table-bordred table-striped center-block" style="width:50%">
+        <thead>
+            <th>Songs</th>
+        </thead>
+        <% if(foundSongs.length !== 0) { %>
+            <tbody>
+                <% for(var i=0; i<foundSongs.length; i++){ %>
+                <tr>
+                    <td><a href="/play/<%= foundSongs[i].title %>"><%= foundSongs[i].title %></a></td>
+                </tr>
+                <% } %>
+            </tbody>
+        <% } %>
+        <% if(foundSongs.length === 0) { %>
+            No songs were found with this name.
+        <% } %>
+    </table>
+    <form action="/search" method="post" class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+            <input id="searchText" type="text" name="text" class="form-control" placeholder="Search for user or song">
+        </div>
+        <button type="submit" class="btn btn-default">Search</button>
+    </form>
+</div>
+<%- include footer %>

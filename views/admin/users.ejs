@@ -1,0 +1,32 @@
+<%- include header %>
+<table id="mytable" class="table table-bordred table-striped center-block" style="width:50%">
+    <thead>
+    <th>Username</th>
+    <th>Fullname</th>
+    <th>Email</th>
+    <th>Make admin</th>
+    <th class ="col-md-1">Edit</th>
+    <th class ="col-md-1">Delete</th>
+    </thead>
+    <tbody>
+
+    <% for(var i=0; i<users.length; i++) {%>
+    <tr>
+        <td><a href="/profile/<%= users[i].local.username %>"><%= users[i].local.username %></a></td>
+        <td><%= users[i].fullname %></td>
+        <td><%= users[i].local.email %></td>
+        <td>
+            <% if(users[i].isAdmin){ %>
+                <p data-toggle="tooltip" title="Remove privilege"><a href="/<%= users[i].local.username %>/toggleAdmin" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-minus"></span></a></p>
+            <% }else{ %>
+                <p data-toggle="tooltip" title="Make admin"><a href="/<%= users[i].local.username %>/toggleAdmin" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus"></span></a></p>
+            <% } %>
+        </td>
+        <td><p data-toggle="tooltip" title="edit"><a href="/<%= users[i].local.username %>/edit" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-pencil"></span></a></p></td>
+        <td><p data-toggle="tooltip" title="delete"><a href="/user/delete/<%= users[i].local.username %>" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a></p></td>
+    </tr>
+    <% } %>
+
+    </tbody>
+</table>
+<%- include footer %>

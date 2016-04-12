@@ -1,0 +1,50 @@
+<%- include header %>
+<div class="container">
+    <% if(user.isAdmin || user.local.email == 'admin@gmail.com'){ %>
+        Go to <a href="/admin">admin area</a>.
+    <% } %>
+    <table id="mytable" class="table table-bordred table-striped center-block" style="width:50%">
+        <thead>
+        <th >Song name</th>
+        <th >Rating</th>
+        <th class ="col-md-1">Delete</th>
+        <th class ="col-md-1">Play</th>
+        <th class ="col-md-1">Share</th>
+        </thead>
+        <tbody>
+
+        <% for(var i=0; i<songs.length; i++) {%>
+        <tr>
+            <td><%= songs[i].title %></td>
+            <td><%= songs[i].avgRating %></td>
+            <td><p data-toggle="tooltip" title="Delete"><a href="song/delete/<%= songs[i].title %>" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span></a></p></td>
+            <td><p data-toggle="tooltip" title="Play"><a href="/play/<%= songs[i].title %>" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-play"></span></a></p></td>
+            <td><p data-toggle="tooltip" title="Share"><a href="/<%= songs[i].title %>/share" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-share"></span></a></p></td>
+        </tr>
+        <% } %>
+
+        </tbody>
+    </table>
+    <div class="col-sm-6 col-sm-offset-3">
+    <form action="/uploadFiles", method="post", enctype="multipart/form-data" name="ajaxUploadForm">
+        <div class="form-group">
+            <label>Song name</label>
+            <input type="text" class="form-control" name="songname" required>
+        </div>
+        <div class="form-group">
+            <input type="file" multiple="multiple" accept="audio/*" name="uploadedImages"/>
+        </div>
+        <div class="form-group">
+             <input type="submit" value="Upload" class="btn btn-info" />
+        </div>
+    </form>
+        <% if (message.length > 0) { %>
+        <div class="col-sm-8 col-sm-offset-4 alert alert-danger"><%= message %></div>
+        <% } %>
+    </div>
+</div>
+
+<script src="app.js" async="true"></script>
+
+</div>
+<%- include footer %>

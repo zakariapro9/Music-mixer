@@ -1,0 +1,29 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/dashboard">Music Mixer</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/explore">Explore</a></li>
+        <li><a href="/profile">Profile</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+          <form action="/search" method="post" class="navbar-form navbar-left" role="search">
+              <div class="form-group">
+                <input id="searchText" type="text" name="text" class="form-control" placeholder="Search for user or song">
+              </div>
+              <button type="submit" class="btn btn-default">Search</button>
+          </form>
+        <li>
+            <a href="/profile/edit">Settings</a>
+        </li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>

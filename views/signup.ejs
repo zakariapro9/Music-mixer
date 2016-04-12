@@ -1,0 +1,193 @@
+<%- include headerNoNav %>
+    <div class="container">
+
+        <div class="col-sm-6 col-sm-offset-3">
+            <!-- show any messages that come back with authentication -->
+
+            <h1><span class="col-sm-1 fa fa-sign-in"></span> Signup</h1>
+            <% if (message.length > 0) { %>
+            <div class="col-sm-8 col-sm-offset-4 alert alert-danger"><%= message %></div>
+            <% } %>
+            <!-- LOGIN FORM -->
+            <form id="defaultForm" method="post" class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Full name</label>
+
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="firstName" placeholder="First name"/>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="lastName" placeholder="Last name"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Username</label>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="username"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Email address</label>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="email"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Password</label>
+
+                    <div class="col-sm-8">
+                        <input type="password" class="form-control" name="password"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Retype Password</label>
+
+                    <div class="col-sm-8">
+                        <input type="password" class="form-control" name="confirmpassword"/>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" id="captchaOperation"></label>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="captcha"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12 col-sm-offset-4">
+                        <button type="submit" class="btn btn-warning btn-lg" name="signup" value="Sign up">Sign up</button>
+                    </div>
+                </div>
+            </form>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    // Generate a simple captcha
+                    function randomNumber(min, max) {
+                        return Math.floor(Math.random() * (max - min + 1) + min);
+                    };
+                    $('#captchaOperation').html([randomNumber(1, 100), '+', randomNumber(1, 200), '='].join(' '));
+
+                    $('#defaultForm').formValidation({
+                        message: 'This value is not valid',
+                        icon: {
+                            valid: 'glyphicon glyphicon-ok',
+                            invalid: 'glyphicon glyphicon-remove',
+                            validating: 'glyphicon glyphicon-refresh'
+                        },
+                        fields: {
+                            firstName: {
+                                row: '.col-sm-4',
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The first name is required'
+                                    }
+                                }
+                            },
+                            lastName: {
+                                row: '.col-sm-4',
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The last name is required'
+                                    }
+                                }
+                            },
+                            username: {
+                                message: 'The username is not valid',
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The username is required'
+                                    },
+                                    stringLength: {
+                                        min: 6,
+                                        max: 30,
+                                        message: 'The username must be more than 6 and less than 30 characters long'
+                                    },
+                                    regexp: {
+                                        regexp: /^[a-zA-Z0-9_\.]+$/,
+                                        message: 'The username can only consist of alphabetical, number, dot and underscore'
+                                    }
+                                }
+                            },
+                            email: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The email address is required'
+                                    },
+                                    emailAddress: {
+                                        message: 'The input is not a valid email address'
+                                    }
+                                }
+                            },
+                            password: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The password is required'
+                                    },
+                                    different: {
+                                        field: 'username',
+                                        message: 'The password cannot be the same as username'
+                                    },
+                                    stringLength:{
+                                        min : '8',
+                                        message:'password length must be at least 8 characters'
+                                    }
+                                }
+                            },
+                            confirmpassword : {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The password is required'
+                                    },
+                                    identical : {
+                                        field : 'password',
+                                        message : 'passowrds don\'t match'
+                                    }
+                                }
+                            },
+                            gender: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'The gender is required'
+                                    }
+                                }
+                            },
+                            captcha: {
+                                validators: {
+                                    callback: {
+                                        message: 'Wrong answer',
+                                        callback: function (value, validator, $field) {
+                                            var items = $('#captchaOperation').html().split(' '), sum = parseInt(items[0]) + parseInt(items[2]);
+                                            return value == sum;
+                                        }
+                                    }
+                                }
+                            },
+                            agree: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'You must agree with the terms and conditions'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+            <hr>
+
+            <p>Already have an account? <a href="/login">Login</a></p>
+
+            <p>Or go <a href="/">home</a>.</p>
+
+        </div>
+
+    </div>
+<%- include footer %>
